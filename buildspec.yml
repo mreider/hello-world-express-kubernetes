@@ -3,7 +3,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      # Add ECR_URI, REPOSITORY_NAME, IMAGE_TAG and AWS_REGION on Codebuild enviroment variables
+      # Add ECR_URI and REPOSITORY_NAME on Codebuild enviroment variables
       - REPOSITORY_URI=$ECR_URI/$REPOSITORY_NAME
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo Logging in to Amazon ECR
@@ -13,15 +13,15 @@ phases:
     commands:
       - echo Build started on `date`  
       - echo Building the docker image
-      - docker build -t $REPOSITORY_NAME:$IMAGE_TAG .
-      - docker tag $REPOSITORY_NAME:$IMAGE_TAG $REPOSITORY_URI
+      - docker build -t $REPOSITORY_NAME/$CODEBUILD_BUILD_ID .
+      - docker tag $REPOSITORY_NAME/$CODEBUILD_BUILD_ID $REPOSITORY_URI
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the docker images...
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:$CODEBUILD_BUILD_ID
       - echo Writing image definitions file
-      - printf '[{name:"%s","imageUri":"%s"}]' $REPOSITORY_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{name:"%s","imageUri":"%s"}]' $REPOSITORY_NAME $REPOSITORY_URI:"latest" > imagedefinitions.json
       - cat imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
