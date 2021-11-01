@@ -20,7 +20,7 @@ phases:
     commands:
       - echo Build completed on `date`
       - echo Pushing the docker images...
-      - docker push $REPOSITORY_URI:$PACKAGE_VERSION
+      - docker push $REPOSITORY_URI
       - echo Writing image definitions file
       - printf '[{name:"%s","imageUri":"%s"}]' $REPOSITORY_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
       - cat imagedefinitions.json
