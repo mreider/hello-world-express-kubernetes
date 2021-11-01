@@ -16,11 +16,12 @@ phases:
       - echo Building the docker image
       - docker build -t $REPOSITORY_NAME:$PACKAGE_VERSION .
       - docker tag $REPOSITORY_NAME:$PACKAGE_VERSION $REPOSITORY_URI
+      - docker images
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the docker images...
-      - docker push $REPOSITORY_URI
+      - docker push -a $REPOSITORY_URI
       - echo Writing image definitions file
       - printf '[{name:"%s","imageUri":"%s"}]' $REPOSITORY_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
       - cat imagedefinitions.json
