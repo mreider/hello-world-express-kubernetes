@@ -6,6 +6,7 @@ phases:
   pre_build:
     commands:
       # Add ECR_URI and REPOSITORY_NAME on Codebuild enviroment variabes
+      - PACKAGE_VERSION=$(node -p "require('./package.json').version")
       - REPOSITORY_URI=$ECR_URI/$REPOSITORY_NAME
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
       - echo Logging in to Amazon ECR
@@ -15,13 +16,13 @@ phases:
     commands:
       - echo Build started on `date`  
       - echo Building the docker image
-      - docker build -t $REPOSITORY_NAME .
-      - docker tag $REPOSITORY_NAME:"latest" $REPOSITORY_URI
+      - docker build -t $REPOSITORY_NAME:$PACKAGE_VERSION .
+      - docker tag $REPOSITORY_NAME:$PACKAGE_VERSION $REPOSITORY_URI:$PACKAGE_VERSION
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the docker images...
-      - docker push $REPOSITORY_URI:"latest"
+      - docker push $REPOSITORY_URI:$PACKAGE_VERSION
       - echo Writing image definitions file
       - printf '[{name:"%s","imageUri":"%s"}]' $REPOSITORY_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
       - cat imagedefinitions.json
