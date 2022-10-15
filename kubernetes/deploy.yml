@@ -28,4 +28,4 @@ spec:
     spec:
       containers:
         - name: express
-          image: joalisonpereira/hello-world-express
+          image: mreider/helloworld
